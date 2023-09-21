@@ -3,3 +3,37 @@
     padding: 1.5rem;
     box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
 }
+.search{
+    margin-top: 1.6rem;
+    margin-bottom: 1rem;
+ 
+
+}
+body{
+    background-color: rgb(206, 149, 149);
+}
+.search input{
+    border-radius: 5px;
+    padding: 0.4rem;
+}
+.submit{
+    margin-left: 2rem;
+}
+.submit input{
+    border-radius: 5px;
+    padding: 0.4rem;
+    margin: 0.4rem 0;
+}
+label{
+    font-weight: bold;
+}
+.submit button{
+margin-left: 0.8rem;
+font-size: 0.9rem;
+}
+button{
+    background-color: red;
+    color: white;
+    padding: 0.36rem 0.7rem;
+    border-radius: 5px;
+}
