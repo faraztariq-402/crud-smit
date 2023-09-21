@@ -12,7 +12,7 @@ app.use('/api/v1',postRouter )
 app.get('/', (req,res)=>{
 res.send("this is profile")
 })
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'crud/build')))
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, ()=>{
     console.log(`example server listening on PORT ${PORT}`)

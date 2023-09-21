@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import './home.css'
-// const baseUrl = "http://localhost:5001";
+const baseUrl = "http://localhost:5001";
 
 const Post = () => {
     const userPostTitle = useRef(null);
@@ -24,7 +24,7 @@ if(!titleValue && !textValue){
         console.log(textValue);
 
         try {
-            const response = await axios.post(`/api/v1/post`, {
+            const response = await axios.post(`${baseUrl}/api/v1/post`, {
                 title: titleValue,
                 text: textValue,
             });
@@ -38,7 +38,7 @@ if(!titleValue && !textValue){
     };
     const getAllPost = async () => {
         try {
-            const response = await axios.get(`/api/v1/posts`);
+            const response = await axios.get(`${baseUrl}/api/v1/posts`);
             console.log(response.data);
             // console.log(response.data.text);
             setAllPosts([...response.data])
@@ -58,7 +58,7 @@ if(!titleValue && !textValue){
         e.preventDefault();
         try {
             console.log("searchInputRef value:", searchInputRef.current.value);
-            const response = await axios.get(`/api/v1/search?q=${searchInputRef.current.value}`);
+            const response = await axios.get(`${baseUrl}/api/v1/search?q=${searchInputRef.current.value}`);
 
             console.log(response.data);
 
