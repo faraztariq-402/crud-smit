@@ -1,6 +1,5 @@
 import express from 'express';
- import client from "../mongodb.mjs" // Use .js extension for imports
-
+import client from "../mongodb.mjs" // Use .js extension for imports
 import { nanoid } from 'nanoid'
 import { ObjectId } from 'mongodb'
 import 'dotenv/config';
@@ -12,7 +11,7 @@ const col = db.collection("posts");
 const router = express.Router()
 
 const openaiClient = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 
@@ -75,39 +74,39 @@ router.get('/post', (req, res) => {
 router.get("/search", async (req, res) => {
   const queryText = req.query.q;
   try {
-      // Initialize the OpenAI client
-      
+    // Initialize the OpenAI client
 
-      // Create an embedding for the query text
-      const response = await openaiClient.embeddings.create({
-          model: "text-embedding-ada-002",
-          input: req.query.q,
-      });
 
-      // Extract the vector from the response
-      const vector = response?.data[0]?.embedding;
+    // Create an embedding for the query text
+    const response = await openaiClient.embeddings.create({
+      model: "text-embedding-ada-002",
+      input: req.query.q,
+    });
 
-      // Perform a search using the vector
-      const documents = await col
-          .aggregate([
-              {
-                  $search: {
-                      index: "default",
-                      knnBeta: {
-                          vector: vector,
-                          path: "embedding",
-                          k: 10,
-                      },
-                      scoreDetails: true,
-                  },
-              },
-          ])
-          .toArray();
+    // Extract the vector from the response
+    const vector = response?.data[0]?.embedding;
 
-      res.send(documents);
+    // Perform a search using the vector
+    const documents = await col
+      .aggregate([
+        {
+          $search: {
+            index: "default",
+            knnBeta: {
+              vector: vector,
+              path: "embedding",
+              k: 10,
+            },
+            scoreDetails: true,
+          },
+        },
+      ])
+      .toArray();
+
+    res.send(documents);
   } catch (error) {
-      console.error(error);
-      res.status(500).send('Error during search');
+    console.error(error);
+    res.status(500).send('Error during search');
   }
 });
 
@@ -135,4 +134,69 @@ router.get("/posts", async (req, res) => {
     console.log("error in retrieving", e)
   }
 })
+
+// router.delete("/post/:postId", async (req, res) => {
+//   try {
+//     const deleteResponse = await col.deleteOne({ _id: new ObjectId(req.params.postId) });
+//     console.log("deleteResponse: ", deleteResponse);
+
+//     if (deleteResponse.deletedCount === 1) {
+//       res.status(200).json({ message: "Post deleted successfully" });
+//     } else {
+//       res.status(404).json({ message: "Post not found" });
+//     }
+//   } catch (e) {
+//     res.status(500).json({ e: "Internal Server Error" });
+//   }
+// });
+
+
+router.put("/post/:postId", async (req, res) => {
+  const postId = new ObjectId(req.params.postId);
+
+  try {
+    const updateResult = await col.updateOne(
+      { _id: postId }, // Specify the document to update based on the postId
+      {
+        $set: {
+          title: req.body.title, // Update the title field
+          text: req.body.text,   // Update the text field
+          status: "Modified",
+          lastUpdate: new Date(), // Update the lastUpdate field with the current date and time
+        },
+        $unset: {
+          commentsSemester1: "", // Remove commentsSemester1 field
+          commentsSemester2: "", // Remove commentsSemester2 field
+        },
+      }
+    );
+
+    if (updateResult.modifiedCount === 1) {
+      res.status(200).json({ message: "Post updated successfully" });
+    } else {
+      res.status(404).json({ message: "Post not found" });
+    }
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+// DELETE  /api/v1/post/:postId
+router.delete('/post/:postId', async (req, res, next) => {
+  const postId = new ObjectId(req.params.postId);
+
+  try {
+    const deleteResponse = await col.deleteOne({ _id: postId });
+    if (deleteResponse.deletedCount === 1) {
+      res.send(`Post with id ${postId} deleted successfully.`);
+    } else {
+      res.send('Post not found with the given id.');
+    }
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 export default router;
