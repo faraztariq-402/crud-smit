@@ -38,7 +38,6 @@ const Post = () => {
         }
     };
     const getAllPost = async () => {
-        console.log("faraz")
         try {
             console.log(baseUrl)
             const response = await axios.get(`${baseUrl}/api/v1/posts`);
@@ -62,63 +61,76 @@ const Post = () => {
     useEffect(() => {
         getAllPost()
     }, [])
-    const editHandler = async (id) => {
-        try {
-          // Use SweetAlert prompt to get updated data from the user
-          const { value: updatedData } = await Swal.fire({
-            title: 'Edit Post',
-            html:
-              '<input id="swal-input-title" class="swal2-input" placeholder="New Title">' +
-              '<input id="swal-input-text" class="swal2-input" placeholder="New Text">',
-            focusConfirm: false,
-            preConfirm: () => {
-              return {
-                title: document.getElementById('swal-input-title').value,
-                text: document.getElementById('swal-input-text').value,
-              };
-            },
-          });
-      
-          if (updatedData.title || updatedData.text) {
-            const response = await axios.put(`${baseUrl}/api/v1/post/${id}`, updatedData);
-      
-            if (response.status === 200) {
-              // Post was successfully edited
-              Swal.fire({
-                icon: 'success',
-                title: 'Post Edited',
-                text: 'The post has been edited successfully!',
-                confirmButtonColor: '#553c51',
-              });
-      
-              // You can also trigger a reload of the posts or perform other actions here.
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Failed to edit the post. Please try again later.',
-                confirmButtonColor: '#553c51',
-              });
-            }
+    const editHandler = async (id, title, text) => {
+      console.log("id", id);
+      console.log("title", title);
+      console.log("text", text);
+      try {
+        // Use SweetAlert prompt to get updated data from the user
+        const result = await Swal.fire({
+          title: 'Edit Post',
+          html:
+            `<input id="swal-input-title" value="${title}" class="swal2-input" placeholder="New Title">` +
+            `<input id="swal-input-text" value="${text}" class="swal2-input" placeholder="New Text">`,
+          showCloseButton: true, // Add a close button
+          focusConfirm: false,
+          preConfirm: () => {
+            return {
+              title: document.getElementById('swal-input-title').value,
+              text: document.getElementById('swal-input-text').value,
+            };
+          },
+        });
+        const updatedData = result.value
+        if(!updatedData.title || !updatedData.text){
+          Swal.fire("Please Fill Both the fields")
+          return
+        }
+        console.log("result", result)
+        if (result.dismiss === 'close') {
+          return; // Do nothing if the user closed the prompt
+        }
+        console.log("updated data", updatedData)
+        if (updatedData.title && updatedData.text) {
+          const response = await axios.put(`${baseUrl}/api/v1/post/${id}`, updatedData);
+    
+          if (response.status === 200) {
+            // Post was successfully edited
+            Swal.fire({
+              icon: 'success',
+              title: 'Post Edited',
+              text: 'The post has been edited successfully!',
+              confirmButtonColor: '#553c51',
+            });
+    getAllPost()
+            // You can also trigger a reload of the posts or perform other actions here.
           } else {
             Swal.fire({
-              icon: 'warning',
-              title: 'No Changes Made',
-              text: 'You did not make any changes to the post.',
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to edit the post. Please try again later.',
               confirmButtonColor: '#553c51',
             });
           }
-        } catch (e) {
-          console.error('Error editing post:', e);
+        } else {
           Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'An error occurred while editing the post. Please try again later.',
+            icon: 'warning',
+            title: 'No Changes Made',
+            text: 'You did not make any changes to the post.',
             confirmButtonColor: '#553c51',
           });
         }
-      };
-      
+      } catch (e) {
+        console.error('Error editing post:', e);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred while editing the post. Please try again later.',
+          confirmButtonColor: '#553c51',
+        });
+      }
+    };
+    
       
     const deleteHandler = async (postId) => {
         console.log("delete id", postId);
@@ -126,6 +138,7 @@ const Post = () => {
             // const response = await axios.delete(`${baseUrl}/api/v1/post/${postId}`);
 
             const response = await axios.delete(`${baseUrl}/api/v1/post/${postId}`);
+            Swal.fire("Post Deleted")
             getAllPost()
             console.log("response", response);
         } catch (e) {
@@ -217,7 +230,7 @@ const Post = () => {
                     <div key={index} className="post">
                         <h2>{post.title}</h2>
                         <p>{post.text}</p>
-                        <button type="" onClick={() => editHandler(post._id)}>Edit</button>
+                        <button type="" onClick={() => editHandler(post._id, post.title,post.text)}>Edit</button>
                         <button type="" onClick={() => deleteHandler(post._id)}>Delete</button>
                     </div>
                 ))}

@@ -9,7 +9,6 @@ const db = client.db("crud");
 const col = db.collection("posts");
 
 const router = express.Router()
-
 const openaiClient = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -19,11 +18,12 @@ const openaiClient = new OpenAI({
 
 // https://baseurl.com/search?q=car
 // router.get('/search', async (req, res, next) => {
-
-//   try {
-//       const response = await openaiClient.embeddings.create({
-//           model: "text-embedding-ada-002",
-//           input: req.query.q,
+  
+  //   try {
+    //       const response = await openaiClient.embeddings.create({
+      //           model: "text-embedding-ada-002",
+      //           input: req.query.q,
+      
 //       });
 //       const vector = response?.data[0]?.embedding
 //       console.log("vector: ", vector);
@@ -31,8 +31,8 @@ const openaiClient = new OpenAI({
 
 //       // Query for similar documents.
 //       const documents = await col.aggregate([
-//           {
-//               "$search": {
+  //           {
+    //               "$search": {
 //                   "index": "default",
 //                   "knnBeta": {
 //                       "vector": vector,
